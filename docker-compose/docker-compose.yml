@@ -1,0 +1,45 @@
+version: '2'
+services:
+  web:
+    image: stephanlindauer/criticalmaps-api:latest
+    expose:
+      - "3000"
+    environment:
+      NODE_ENV: production
+      DEBUG: "*"
+      VIRTUAL_HOST: cm.stephanlindauer.de
+      LETSENCRYPT_HOST: cm.stephanlindauer.de
+      LETSENCRYPT_EMAIL: "stephanlindauer@posteo.de"
+    env_file:
+      - twitter.env
+      - postgres.env
+    links:
+      - postgres
+    restart: always
+
+  postgres:
+    image: stephanlindauer/criticalmaps-db:latest
+    env_file:
+      - postgres.env
+    expose:
+        - "5432"
+    restart: always
+
+  nginx:
+    image: jwilder/nginx-proxy:0.4.0
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /path/to/certs:/etc/nginx/certs:ro
+      - /etc/nginx/vhost.d
+      - /usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  letsencrypt-companion:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    volumes:
+      - /path/to/certs:/etc/nginx/certs:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    volumes_from:
+      - nginx

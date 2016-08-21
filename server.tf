@@ -1,6 +1,6 @@
-resource "digitalocean_droplet" "asdf-foo" {
+resource "digitalocean_droplet" "criticalmaps" {
   image = "ubuntu-14-04-x64"
-  name = "asdf"
+  name = "criticalmaps"
   region = "fra1"
   size = "512mb"
   private_networking = true
@@ -17,7 +17,12 @@ resource "digitalocean_droplet" "asdf-foo" {
 
   provisioner "file" {
       source = "bin"
-      destination = "/criticalmaps"
+      destination = "/criticalmaps/"
+  }
+
+  provisioner "file" {
+      source = "docker-compose"
+      destination = "/criticalmaps/"
   }
 
   provisioner "remote-exec" {
